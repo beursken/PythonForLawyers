@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "c:\\Python39\\python.exe"
+    "python.pythonPath": "c:\\Python39\\python.exe",
+    "python.analysis.extraPaths": ["./06 - GUI"]
 }

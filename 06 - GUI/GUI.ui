@@ -11,7 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Beispielprogramm</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -30,8 +33,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
-           <string>PushButton</string>
+           <string>Übernehmen</string>
           </property>
          </widget>
         </item>
@@ -86,38 +92,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>pushButton</receiver>
-   <slot>animateClick()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>130</x>
-     <y>32</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>241</x>
-     <y>38</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>pushButton</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>157</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>256</x>
-     <y>34</y>
     </hint>
    </hints>
   </connection>
