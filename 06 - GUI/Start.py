@@ -1,5 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication,QMainWindow,QDialog
+
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow
+
 from Ui_GUI import Ui_Dialog
 
 if __name__ == '__main__':
