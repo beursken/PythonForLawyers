@@ -6,12 +6,12 @@ print("Dieses Programm berechnet Preise mit und ohne Umsatzsteuer (Brutto und Ne
 betragText: str = input("Betrag (in Euro): ")
 steuersatzText: str = input("Steuersatz (in Prozent): ")
 
-betrag: float = round(float(betragText),2)
-steuersatz: float = round(float(steuersatzText),2)
-brutto: float = round(betrag*(100 + steuersatz)/100,2)
-netto: float = round(betrag / ((100 + steuersatz)/100),2)
-steuerBrutto:float = round(brutto-betrag,2)
-steuerNetto :float = round(betrag-netto,2)
+betrag: float = round(float(betragText), 2)
+steuersatz: float = round(float(steuersatzText), 2)
+brutto: float = round(betrag*(100 + steuersatz)/100, 2)
+netto: float = round(betrag / ((100 + steuersatz)/100), 2)
+steuerBrutto: float = round(brutto-betrag, 2)
+steuerNetto: float = round(betrag-netto, 2)
 print("\n")
 print("-----------------------------------------------------------------------")
 
