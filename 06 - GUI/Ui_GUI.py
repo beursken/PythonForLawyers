@@ -15,6 +15,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(454, 300)
+        Dialog.setSizeGripEnabled(True)
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -29,6 +30,7 @@ class Ui_Dialog(object):
         self.spinBox.setObjectName("spinBox")
         self.horizontalLayout_3.addWidget(self.spinBox)
         self.pushButton = QtWidgets.QPushButton(self.frame)
+        self.pushButton.setEnabled(False)
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout_3.addWidget(self.pushButton)
         self.verticalLayout.addWidget(self.frame)
@@ -38,19 +40,16 @@ class Ui_Dialog(object):
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Vertical)
-        self.buttonBox.setStandardButtons(
-            QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.horizontalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(Dialog)
         self.buttonBox.accepted.connect(Dialog.accept)
         self.buttonBox.rejected.connect(Dialog.reject)
-        self.spinBox.valueChanged['int'].connect(self.pushButton.animateClick)
-        self.spinBox.valueChanged['int'].connect(self.pushButton.toggle)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.pushButton.setText(_translate("Dialog", "PushButton"))
+        Dialog.setWindowTitle(_translate("Dialog", "Beispielprogramm"))
+        self.pushButton.setText(_translate("Dialog", "Übernehmen"))
