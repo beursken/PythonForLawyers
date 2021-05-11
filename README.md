@@ -8,6 +8,7 @@ This code is plain and simple (and in German). It is merely used as an example.
 * 04 - Minderung: Text-based calculator for reduction in price in case of damaged goods
 * 05 - Examensnote: Text-based calculator for exam results based on legal provisions in Bavaria
 * 06 - GUI: GUI-based calculator (using PyQt5)
+* 07 - Daten: Simple Calculator for Week-based Terms (not taking into account § 193 BGB); Simple Holiday-Checker using Webservice
 
 Requirements:
 * Git - see https://git-scm.com/downloads
