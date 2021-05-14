@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# Programm 01a: Kostenquote nach §§ 91, 92 ZPO im Zweipersonenverhältnis mit grafischer Oberfläche und Eingabevalidierung
+# (C) 14.05.2021, Michael Beurskens
 
 ################################################################################
 # Form generated from reading UI file 'designeravlkQV.ui'
@@ -12,11 +13,11 @@
 # Die folgenden Zeilen laden bestimmte (notwendige) Klassen, um grafische Oberflächen anzuzeigen
 # Sie müssen diese nicht selber schreiben, da sie von QT-Designer automatisch erstellt werdne
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-import sys
-import locale
+from PyQt5.QtCore import * # Für die Benutzeroberflächenelemente
+from PyQt5.QtGui import * # Für die Benutzeroberflächenelemente
+from PyQt5.QtWidgets import * # Für die Benutzeroberflächenelemente
+import sys # Für die Ein- und Ausgabewerte des Betriebssystems
+import locale # Für die Umwandlung von Zahlen und Währungsangaben in ein "deutsches" Format (Euro, Komma statt Punkte für Nachkommastellen)
 
 
 class Ui_MainWindow(object):
@@ -256,6 +257,10 @@ def knopfGedrueckt():
 
 locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8') # Deutsche Formatierung für Währungen und Kommazahlen
 
+
+
+
+# Die folgenden Zeilen sind für alle Programme mit grafischer Oberfläche im Wesentlichen gleich
 
 # Anwendung initialisieren (für Sie unsichtbar - alle Parameter von Python weiterleiten)
 app: QApplication = QApplication(sys.argv)
