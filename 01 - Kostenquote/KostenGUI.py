@@ -16,6 +16,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import sys
+import locale
 
 
 class Ui_MainWindow(object):
@@ -85,7 +86,6 @@ class Ui_MainWindow(object):
 
         self.ergebnis = QTextBrowser(self.centralwidget)
         self.ergebnis.setObjectName(u"ergebnis")
-
         self.verticalLayout.addWidget(self.ergebnis)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -131,10 +131,23 @@ class Ui_MainWindow(object):
 # Ab hier beginnt das eigentliche Programm
 
 
+# Hilfsfunktion: Größten gemeinsamen Teiler berechnen
+
+def ggt(wert1: int, wert2: int) -> int:
+    '''Euklidischer Algorithmus (https://de.wikipedia.org/wiki/Euklidischer_Algorithmus) zur Berechnung des größten gemeinsamen Teilers'''
+    # Muss man nicht auswendig können, sondern kann man bei Bedarf nachschlagen!
+    while wert2 != 0:
+        temp: int = wert1 % wert2
+        wert1 = wert2
+        wert2 = temp
+    return wert1
+
+# Prüffunktionen zur Validierung der Eingabe
+
 def pruefeEuro(betrag: str, feld: str) -> bool:
     '''Prüfen, ob ein Textwert einen gültigen Euro-Betrag darstellt; ggf. Fehlermeldung mit Angabe des betroffenen Feldes'''
     try:
-        betragZahl = float(betrag.replace(",", "."))
+        betragZahl: float = float(betrag.replace(",", "."))
         if(betragZahl < 0):
             fenster.fehlermeldung.setText(
                 f"Bitte eine positive Zahl im Feld {feld} eingeben (Euro-Beträge können nicht negativ sein).")
@@ -163,8 +176,11 @@ def erfolgKleinerAntrag() -> bool:
     return True
 
 
+
+# Reaktionen auf Ereignisse (d.h. Änderungen in der Benutzeroberfläche wie Knöpfe, die angeklickt werden oder Felder, die ausgefüllt werden)
+
 def changed():
-    '''Prüfen, ob Eingabe gültig ist'''
+    '''Bei Eingabe: Prüfen, ob Eingabe in beiden Eingabefelder gültig ist, so dass der Berechnen-Knopf aktiviert werden kann'''
     fenster.fehlermeldung.setText("")  # Text im Feld Fehlermeldung löschen
     fenster.berechnen.setEnabled(False)  # Berechnen-Knopf deaktivieren
     if pruefeEuro(fenster.antrag.currentText(), "Antrag") and pruefeEuro(fenster.erfolg.currentText(), "Erfolg") and erfolgKleinerAntrag():
@@ -174,40 +190,53 @@ def changed():
 
 def knopfGedrueckt():
     '''Berechnung durchführen und Ergebnis anzeigen'''
-    streitwert = float(fenster.antrag.currentText().replace(",", "."))
-    erfolg = float(fenster.erfolg.currentText().replace(",", "."))
-    unterliegen = streitwert-erfolg
-    kostenKlaeger = round((streitwert-erfolg)/streitwert*100, 2)
-    kostenBeklagter = 100-kostenKlaeger
-    # Dies fügt den Text ein - im Prinzip funktioniert die Funktion wie print()
-    fenster.ergebnis.insertPlainText("\n")
-    fenster.ergebnis.insertPlainText(
-        "-----------------------------------------------------------------------\n")
-    fenster.ergebnis.insertPlainText(
-        f"Kläger hat {streitwert:.2f} Euro beantragt, ihm wurden {erfolg:.2f} Euro zugesprochen:\n\n")
+    streitwert: float = float(fenster.antrag.currentText().replace(",", "."))
+    erfolg: float = float(fenster.erfolg.currentText().replace(",", "."))
+    unterliegen: float = streitwert-erfolg
+    kostenKlaeger: float = round((streitwert-erfolg)/streitwert*100, 2)
+    kostenBeklagter: float = 100-kostenKlaeger
 
-    if kostenKlaeger < 2:
-        fenster.ergebnis.insertPlainText(
-            "Die Kosten des Verfahrens trägt der Beklagte.\n")
-        if kostenKlaeger > 0:
-            fenster.ergebnis.insertPlainText(
-                f"(beachten Sie § 92 Abs. 2 Nr. 2 ZPO - hier müsste der Kläger sonst {kostenKlaeger:.2f}% der Kosten tragen).\n")
-    elif kostenBeklagter < 2:
-        fenster.ergebnis.insertPlainText(
-            "Die Kosten des Verfahrens trägt der Kläger.\n")
-        if kostenBeklagter > 0:
-            fenster.ergebnis.insertPlainText(
-                f"(beachten Sie § 92 Abs. 2 Nr. 2 ZPO - hier müsste der Beklagte sonst {kostenBeklagter:.2f}% der Kosten tragen).\n")
+
+
+    # Das folgende ist neu: Die Brüche werden jetzt gekürzt und vor allem als ganze Zahlen ausgewertet (d.h. nicht mehr 32,12/400,74)
+    kostenKlaegerNenner: int = int(
+        streitwert*100/ggt(int(unterliegen*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
+    kostenKlaegerZaehler: int = int(
+        unterliegen*100/ggt(int(unterliegen*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
+    kostenBeklagterZaehler: int = int(
+        erfolg*100/ggt(int(erfolg*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
+    kostenBeklagterNenner: int = int(
+        streitwert*100/ggt(int(erfolg*100), int(streitwert*100)))  # Um schöne Brüche auszugeben, kürzen wir automatisch
+    
+    
+    
+    
+    fenster.ergebnis.append("<h3>Streitwertberechnung</h3>") # Hier wird der Text als HTML eingefügt - das erlaubt Formatierungen (z.B. im konkreten Fall als h3 = Überschrift 3)
+
+    fenster.ergebnis.append( 
+        f"<p><i>Kläger hat <b>{locale.currency(streitwert)}</b> beantragt, ihm wurden <b>{locale.currency(erfolg)}</b> zugesprochen.</i></p><br/><br/>")
+#Die beiden Geldbeträge werden automatisch von Python richtig (Kommazahl, Euro) formatiert, wenn man die entsprechenden Zahlen an die Funktion locale.currency übergibt - diese wandelt also jede Zahl in einen String um, der diese als Euro-Betrag ausgibt
+
+    if kostenKlaeger < 10:    # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
+        fenster.ergebnis.append(
+            "<p style='font-family:courier'>Die Kosten des Verfahrens trägt der Beklagte.</p>")
+        if kostenKlaeger > 0:  # Klarstellender Hinweis ist nur relevant, falls der Kläger überhaupt irgendwelche Kosten tragen würde
+            fenster.ergebnis.append(
+                f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste der Kläger sonst (nur) <b class=\"color:black\">{locale.format_string('%.2g',kostenKlaeger)}%</b> der Kosten tragen).</i></p>")
+    elif kostenBeklagter < 10: # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
+        fenster.ergebnis.append(
+            "<p  style='font-family:courier'>Die Kosten des Verfahrens trägt der Kläger.</p>")
+        if kostenBeklagter > 0: # Klarstellender Hinweis ist nur relevant, falls der Beklagte überhaupt irgendwelche Kosten tragen würde
+            fenster.ergebnis.append(
+                f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste der Beklagte sonst (nur) <b  class=\"color:black\">{locale.format_string('%.2g',kostenBeklagter)}%</b> der Kosten tragen).</i></p>")
     else:
-        fenster.ergebnis.insertPlainText(
-            f"Die Kosten des Rechtsstreits trägt der Kläger zu {unterliegen:.2f} / {streitwert:.2f} und der Beklagte zu {erfolg:.2f} / {streitwert:.2f}.\n")
-        fenster.ergebnis.insertPlainText("\n")
-        fenster.ergebnis.insertPlainText("- oder (alternativer Tenor) -\n")
-        fenster.ergebnis.insertPlainText("\n")
-        fenster.ergebnis.insertPlainText(
-            f"Die Kosten des Rechtsstreits trägt der Kläger zu {kostenKlaeger:.2f} Prozent und der Beklagte zu {kostenBeklagter:.2f} Prozent.\n")
-        fenster.ergebnis.insertPlainText(
-            "-----------------------------------------------------------------------\n")
+        fenster.ergebnis.append(
+            f"<p style='font-family:courier'>Die Kosten des Rechtsstreits trägt der Kläger zu <b>{kostenKlaegerZaehler}</b> / <b>{kostenKlaegerNenner}</b> und der Beklagte zu <b>{kostenBeklagterZaehler}</b> / <b>{kostenBeklagterNenner}</b>.</p>")
+        fenster.ergebnis.append(
+            "<br/><br/><p style=\"color:silver\">- oder (alternativer Tenor) -</p><br/><br/>")
+        fenster.ergebnis.append(
+            f"<p style='font-family:courier'>Die Kosten des Rechtsstreits trägt der Kläger zu <b>{locale.format_string('%.2g',kostenKlaeger)}%</b> und der Beklagte zu <b>{locale.format_string('%.2g',kostenBeklagter)}%</b> Prozent.</p>")
+    fenster.ergebnis.append("<hr/><br/><br/>")
 
     # Fügt die Eingabe für den Antrag in die Archivliste des Eingabefeldes ein (falls man denselben Betrag noch einmal benötigt)
     fenster.antrag.addItem(fenster.antrag.currentText())
@@ -223,6 +252,10 @@ def knopfGedrueckt():
 
 # Das ist das eigentliche Programm. Die folgenden Befehle müssen Sie *immer* bei grafischen Anwendungen ausführen. Nur der Name des Fensters ist ggf. ein anderer (hier heißt es Ui_Dialog, den Namen können Sie aber in QT-Designer anpassen)
 # Die eigentlichen Knöpfe etc. positionieren Sie mit QT Designer. Dadurch ändert sich nur der Teil oben, nicht aber die folgenden vier Zeilen. Merken Sie sich also diese Zeilen!
+
+
+locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8') # Deutsche Formatierung für Währungen und Kommazahlen
+
 
 # Anwendung initialisieren (für Sie unsichtbar - alle Parameter von Python weiterleiten)
 app: QApplication = QApplication(sys.argv)
