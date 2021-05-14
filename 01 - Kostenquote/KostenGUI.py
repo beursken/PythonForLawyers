@@ -21,6 +21,11 @@ import locale # Für die Umwandlung von Zahlen und Währungsangaben in ein "deut
 import decimal
 
 
+# Globalen Variablen (die über die Funktionen hinaus bestehen sollen)
+formulierungProzent:str="" # Formulierung für Tenor mit Prozentangaben
+formulierungBruch:str="" # Formulierung für Tenor mit Brüchen
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -90,6 +95,24 @@ class Ui_MainWindow(object):
         self.ergebnis.setObjectName(u"ergebnis")
         self.verticalLayout.addWidget(self.ergebnis)
 
+        self.horizontalLayout2 = QHBoxLayout()
+        self.horizontalLayout2.setObjectName(u"horizontalLayout2")
+
+
+
+        self.copyPercent = QPushButton(self.centralwidget)
+        self.copyPercent.setObjectName(u"copyPercent")
+        self.copyPercent.setAutoDefault(False)
+        self.copyPercent.setEnabled(False)
+        self.horizontalLayout2.addWidget(self.copyPercent)
+
+        self.copyFraction = QPushButton(self.centralwidget)
+        self.copyFraction.setObjectName(u"copyFraction")
+        self.copyFraction.setAutoDefault(False)
+        self.copyFraction.setEnabled(False)
+        self.horizontalLayout2.addWidget(self.copyFraction)
+        self.verticalLayout.addLayout(self.horizontalLayout2)
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -124,6 +147,10 @@ class Ui_MainWindow(object):
             "MainWindow", u"Zugesprochener Betrag:", None))
         self.berechnen.setText(QCoreApplication.translate(
             "MainWindow", u"Kostenquote berechnen", None))
+        self.copyFraction.setText(QCoreApplication.translate(            
+            "MainWindow", u"Formulierung mit Brüchen kopieren", None))
+        self.copyPercent.setText(QCoreApplication.translate(
+            "MainWindow", u"Formulierung mit Prozentangaben kopieren", None))
         self.fehlermeldung.setText("")
         self.menuDatei.setTitle(QCoreApplication.translate(
             "MainWindow", u"&Datei", None))
@@ -207,6 +234,8 @@ def calculate():
 
 def knopfGedrueckt():
     '''Berechnung durchführen und Ergebnis anzeigen'''
+    global formulierungBruch
+    global formulierungProzent
     streitwert: decimal.Decimal = stringZuGeld(fenster.antrag.currentText())
     erfolg: decimal.Decimal = stringZuGeld(fenster.erfolg.currentText())
     unterliegen: decimal.Decimal = streitwert-erfolg
@@ -228,32 +257,39 @@ def knopfGedrueckt():
     
     
     
-    fenster.ergebnis.append("<h3>Einfache Streitwertberechnung</h3>") # Hier wird der Text als HTML eingefügt - das erlaubt Formatierungen (z.B. im konkreten Fall als h3 = Überschrift 3)
+    fenster.ergebnis.append("<h1>Einfache Streitwertberechnung</h1>") # Hier wird der Text als HTML eingefügt - das erlaubt Formatierungen (z.B. im konkreten Fall als h3 = Überschrift 3)
 
     fenster.ergebnis.append( 
         f"<p><i>Die klagende Partei hat <b>{locale.currency(streitwert)}</b> beantragt, ihr wurden <b>{locale.currency(erfolg)}</b> zugesprochen - sie unterliegt also in Höhe von <b>{locale.currency(unterliegen)}</b>. das entspricht <b>{locale.format_string('%.2f',kostenKlaeger).rstrip('00').rstrip(',')}%</b> .</i></p><br/><br/>")
 #Die beiden Geldbeträge werden automatisch von Python richtig (Kommazahl, Euro) formatiert, wenn man die entsprechenden Zahlen an die Funktion locale.currency übergibt - diese wandelt also jede Zahl in einen String um, der diese als Euro-Betrag ausgibt
 
     if kostenKlaeger < 10:    # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
-        fenster.ergebnis.append(
-            "<p style='font-family:courier'>Die Kosten des Rechtsstreits trägt die beklagte Partei.</p>")
+        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die beklagte Partei."        
+        formulierungProzent=formulierungBruch
+        fenster.ergebnis.append(f"<p style=\"font-family:courier\">{formulierungBruch}</p>")
         if kostenKlaeger > 0:  # Klarstellender Hinweis ist nur relevant, falls der Kläger überhaupt irgendwelche Kosten tragen würde
             fenster.ergebnis.append(
                 f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste die klagende Partei sonst (nur) <b class=\"color:black\">{locale.format_string('%.2g',kostenKlaeger)}%</b> der Kosten tragen).</i></p>")
     elif kostenBeklagter < 10: # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
-        fenster.ergebnis.append(
-            "<p  style='font-family:courier'>Die Kosten des Rechtsstreits trägt die klagende Partei.</p>")
+        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die klagende Partei."        
+        formulierungProzent=formulierungBruch
+        fenster.ergebnis.append(f"<p style=\"font-family:courier\">{formulierungBruch}</p>")        
         if kostenBeklagter > 0: # Klarstellender Hinweis ist nur relevant, falls der Beklagte überhaupt irgendwelche Kosten tragen würde
             fenster.ergebnis.append(
                 f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste die beklagte Partei sonst (nur) <b  class=\"color:black\">{locale.format_string('%.2g',kostenBeklagter)}%</b> der Kosten tragen).</i></p>")
     else:
+        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die klagende Partei zu <sup><b>{kostenKlaegerZaehler}</b></sup>/<sub><b>{kostenKlaegerNenner}</b></sub> und die beklagte Partei zu <sup><b>{kostenBeklagterZaehler}</b></sup>/<sub><b>{kostenBeklagterNenner}</b></sub>."
+        formulierungProzent=f"Die Kosten des Rechtsstreits trägt die klagende Partei zu <b>{locale.format_string('%.2f',kostenKlaeger).rstrip('00').rstrip(',')}%</b> und die beklagte Partei zu <b>{locale.format_string('%.2f',kostenBeklagter).rstrip('00').rstrip(',')}%</b> Prozent."
         fenster.ergebnis.append(
-            f"<p style='font-family:courier'>Die Kosten des Rechtsstreits trägt die klagende Partei zu <sup><b>{kostenKlaegerZaehler}</b></sup>/<sub><b>{kostenKlaegerNenner}</b></sub> und die beklagte Partei zu <sup><b>{kostenBeklagterZaehler}</b></sup>/<sub><b>{kostenBeklagterNenner}</b></sub>.</p>")
+            f"<p style='font-family:courier'>{formulierungBruch}</p>")
         fenster.ergebnis.append(
             "<br/><br/><p style=\"color:silver\">- oder (alternativer Tenor) -</p><br/><br/>")
         fenster.ergebnis.append(
-            f"<p style='font-family:courier'>Die Kosten des Rechtsstreits trägt die klagende Partei zu <b>{locale.format_string('%.2f',kostenKlaeger).rstrip('00').rstrip(',')}%</b> und die beklagte Partei zu <b>{locale.format_string('%.2f',kostenBeklagter).rstrip('00').rstrip(',')}%</b> Prozent.</p>")
+            f"<p style='font-family:courier'>{formulierungProzent}</p>")
     fenster.ergebnis.append("<hr/><br/><br/>")
+
+    fenster.copyFraction.setEnabled(True)
+    fenster.copyPercent.setEnabled(True)
 
     # Fügt die Eingabe für den Antrag in die Archivliste des Eingabefeldes ein (falls man denselben Betrag noch einmal benötigt)
     fenster.antrag.addItem(fenster.antrag.currentText())
@@ -266,6 +302,19 @@ def knopfGedrueckt():
     # Bewirkt, dass das Eingabefeld für den Antrag wieder aktiv wird (d.h., dass Sie dort als nächstes Text eingeben sollen)
     fenster.antrag.setFocus()
 
+def prozentKopieren():
+    '''Kopiert das Ergebnis als Prozentangabe in die Zwischenablage'''
+    clipboard:QClipboard=app.clipboard()
+    mimeData:QMimeData=QMimeData()
+    mimeData.setHtml(formulierungProzent)
+    clipboard.setMimeData(mimeData)
+
+def bruchKopieren():
+    '''Kopiert das Ergebnis als Bruch in die Zwischenablage'''
+    clipboard:QClipboard=app.clipboard()
+    mimeData:QMimeData=QMimeData()
+    mimeData.setHtml(formulierungBruch)
+    clipboard.setMimeData(mimeData)
 
 # Das ist das eigentliche Programm. Die folgenden Befehle müssen Sie *immer* bei grafischen Anwendungen ausführen. Nur der Name des Fensters ist ggf. ein anderer (hier heißt es Ui_Dialog, den Namen können Sie aber in QT-Designer anpassen)
 # Die eigentlichen Knöpfe etc. positionieren Sie mit QT Designer. Dadurch ändert sich nur der Teil oben, nicht aber die folgenden vier Zeilen. Merken Sie sich also diese Zeilen!
@@ -296,12 +345,18 @@ fenster.action_Beenden.triggered.connect(quit)
 # An dieser Stelle kommt der eigentliche Funktionsteil des Programms. Hier programmieren Sie sog. "Ereignisse" (Events), d.h. was passiert, wenn der Nutzer etwas macht
 # Dies verknüpft (connect) das Ereignis "clicked" (angeklickt) des Objekts "berechnen" im Objekt "fenster" (siehe oben im von QT-Designer erstellten Programmcode: self.knopf = QPushButton(Dialog)) mit einer Funktion "knopfGedrueckt", die Sie oben mit def erstellt haben
 fenster.berechnen.clicked.connect(knopfGedrueckt)
+fenster.copyPercent.clicked.connect(prozentKopieren) # Ersten Formulierungsvorschlag (mit Prozent) in Zwischenablage kopieren
+fenster.copyFraction.clicked.connect(bruchKopieren) # Zweiten Formulierungsvorschlag (mit Brüchen) in Zwischenablage kopieren
 
 
-enter = QShortcut(QKeySequence(Qt.Key_Return), x)
-enter.activated.connect(calculate)
 
+enter = QShortcut(QKeySequence(Qt.Key_Return | Qt.Key_Enter), x)  # Reaktion auf Druck der  Entertaste vormerkens
+enter.activated.connect(calculate) # Entertaste mit Funktion calculate verbinden (d.h. die Funktion wird immer aufgerufen, wenn irgendwo im Programm die Entertaste gedrückt wird)
 
 x.show()  # Fenster anzeigen (dies erfolgt immer als vorletzter Schritt - vergessen Sie diesen Befehl, ist ihr Programm "unsichtbar" und damit nutzlos)
+
+
+
+
 # Programm bis zum bitteren Ende ausführen (und am Ende den Rückgabewert von QT zurückliefern)
 sys.exit(app.exec())
