@@ -9,8 +9,8 @@ erfolg: float = 0
 unterliegen: float = 0
 kostenKlaeger: float = 0
 kostenBeklagter: float = 0
-x:int=8
-print('sa')
+x:int=82
+print('sd')
 
 
 # Mit der Funktion print() kann man Texte ausgeben. Diese stehen in Anführungszeichen.
