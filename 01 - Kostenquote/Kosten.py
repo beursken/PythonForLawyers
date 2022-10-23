@@ -9,6 +9,7 @@ erfolg: float = 0
 unterliegen: float = 0
 kostenKlaeger: float = 0
 kostenBeklagter: float = 0
+# Noch ein Kommentar
 
 
 # Mit der Funktion print() kann man Texte ausgeben. Diese stehen in Anführungszeichen.
