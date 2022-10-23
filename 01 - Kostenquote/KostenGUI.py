@@ -10,6 +10,7 @@
 ################################################################################
 
 
+
 # Die folgenden Zeilen laden bestimmte (notwendige) Klassen, um grafische Oberflächen anzuzeigen
 # Sie müssen diese nicht selber schreiben, da sie von QT-Designer automatisch erstellt werdne
 
