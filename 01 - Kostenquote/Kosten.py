@@ -4,6 +4,9 @@
 # Im Folgenden werden einige Variablen definiert, die wir später brauchen. Dies geschieht durch Angabe des Namens, 
 # gefolgt von einem Doppelpunkt mit dem Typ und einem Gleichheitszeichen mit dem Wert
 
+print('Bitte geben Sie den Streitwert an')
+streitwert=input()
+
 streitwert: float = 0
 erfolg: float = 0
 unterliegen: float = 0
