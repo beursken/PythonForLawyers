@@ -21,6 +21,7 @@ Recommended:
 * Visual Studio Code Python Extension - see https://marketplace.visualstudio.com/items?itemName=ms-python.python
 * Visual Studio Code PyQT Integration Extension - see https://marketplace.visualstudio.com/items?itemName=zhoufeng.pyqt-integration
 * Visual Studio Code Github Pull Requests and Issues Extension - see https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github
+* JetBrains PyCharm - see https://www.jetbrains.com/pycharm/
 
 
 Further requirements will be added during the course.
