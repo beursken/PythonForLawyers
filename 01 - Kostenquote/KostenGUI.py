@@ -234,73 +234,46 @@ def calculate():
         knopfGedrueckt()
 
 def knopfGedrueckt():
-    '''Berechnung durchführen und Ergebnis anzeigen'''
-    global formulierungBruch
-    global formulierungProzent
-    streitwert: decimal.Decimal = stringZuGeld(fenster.antrag.currentText())
-    erfolg: decimal.Decimal = stringZuGeld(fenster.erfolg.currentText())
-    unterliegen: decimal.Decimal = streitwert-erfolg
-    kostenKlaeger: float = float(unterliegen/streitwert*100)
-    kostenBeklagter: float = 100-kostenKlaeger
+    global formulierungBruch, formulierungProzent
+    streitwert = stringZuGeld(fenster.antrag.currentText())
+    erfolg = stringZuGeld(fenster.erfolg.currentText())
+    unterliegen = streitwert - erfolg
+    kostenKlaeger = float(unterliegen / streitwert * 100)
+    kostenBeklagter = 100 - kostenKlaeger
 
-
-
-    # Das folgende ist neu: Die Brüche werden jetzt gekürzt und vor allem als ganze Zahlen ausgewertet (d.h. nicht mehr 32,12/400,74)
-    kostenKlaegerNenner: int = int(
-        streitwert*100/ggt(int(unterliegen*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
-    kostenKlaegerZaehler: int = int(
-        unterliegen*100/ggt(int(unterliegen*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
-    kostenBeklagterZaehler: int = int(
-        erfolg*100/ggt(int(erfolg*100), int(streitwert*100))) # Um schöne Brüche auszugeben, kürzen wir automatisch
-    kostenBeklagterNenner: int = int(
-        streitwert*100/ggt(int(erfolg*100), int(streitwert*100)))  # Um schöne Brüche auszugeben, kürzen wir automatisch
-    
-    
-    
-    
-    fenster.ergebnis.append("<h1>Einfache Streitwertberechnung</h1>") # Hier wird der Text als HTML eingefügt - das erlaubt Formatierungen (z.B. im konkreten Fall als h3 = Überschrift 3)
-
-    fenster.ergebnis.append( 
-        f"<p><i>Die klagende Partei hat <b>{locale.currency(streitwert)}</b> beantragt, ihr wurden <b>{locale.currency(erfolg)}</b> zugesprochen - sie unterliegt also in Höhe von <b>{locale.currency(unterliegen)}</b>. das entspricht <b>{locale.format_string('%.2f',kostenKlaeger).rstrip('00').rstrip(',')}%</b> .</i></p><br/><br/>")
-#Die beiden Geldbeträge werden automatisch von Python richtig (Kommazahl, Euro) formatiert, wenn man die entsprechenden Zahlen an die Funktion locale.currency übergibt - diese wandelt also jede Zahl in einen String um, der diese als Euro-Betrag ausgibt
-
-    if kostenKlaeger < 10:    # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
-        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die beklagte Partei."        
-        formulierungProzent=formulierungBruch
-        fenster.ergebnis.append(f"<p style=\"font-family:courier\">{formulierungBruch}</p>")
-        if kostenKlaeger > 0:  # Klarstellender Hinweis ist nur relevant, falls der Kläger überhaupt irgendwelche Kosten tragen würde
-            fenster.ergebnis.append(
-                f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste die klagende Partei sonst (nur) <b class=\"color:black\">{locale.format_string('%.2g',kostenKlaeger)}%</b> der Kosten tragen).</i></p>")
-    elif kostenBeklagter < 10: # Bei weniger als 10% der Kosten wenden die Gerichte in der Praxis § 92 Abs. 2 Nr. 2 ZPO an und legen die Kosten einer Partei allein auf
-        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die klagende Partei."        
-        formulierungProzent=formulierungBruch
-        fenster.ergebnis.append(f"<p style=\"font-family:courier\">{formulierungBruch}</p>")        
-        if kostenBeklagter > 0: # Klarstellender Hinweis ist nur relevant, falls der Beklagte überhaupt irgendwelche Kosten tragen würde
-            fenster.ergebnis.append(
-                f"<br/><p style=\"color:silver\"><i>(beachten Sie <b class=\"color:black\">§ 92 Abs. 2 Nr. 2 ZPO</b> - hier müsste die beklagte Partei sonst (nur) <b  class=\"color:black\">{locale.format_string('%.2g',kostenBeklagter)}%</b> der Kosten tragen).</i></p>")
+    if kostenKlaeger < 10:
+        formulierungBruch = "Die Kosten des Rechtsstreits trägt die beklagte Partei."
+        formulierungProzent = formulierungBruch
+    elif kostenBeklagter < 10:
+        formulierungBruch = "Die Kosten des Rechtsstreits trägt die klagende Partei."
+        formulierungProzent = formulierungBruch
     else:
-        formulierungBruch=f"Die Kosten des Rechtsstreits trägt die klagende Partei zu <sup><b>{kostenKlaegerZaehler}</b></sup>/<sub><b>{kostenKlaegerNenner}</b></sub> und die beklagte Partei zu <sup><b>{kostenBeklagterZaehler}</b></sup>/<sub><b>{kostenBeklagterNenner}</b></sub>."
-        formulierungProzent=f"Die Kosten des Rechtsstreits trägt die klagende Partei zu <b>{locale.format_string('%.2f',kostenKlaeger).rstrip('00').rstrip(',')}%</b> und die beklagte Partei zu <b>{locale.format_string('%.2f',kostenBeklagter).rstrip('00').rstrip(',')}%</b> Prozent."
-        fenster.ergebnis.append(
-            f"<p style='font-family:courier'>{formulierungBruch}</p>")
-        fenster.ergebnis.append(
-            "<br/><br/><p style=\"color:silver\">- oder (alternativer Tenor) -</p><br/><br/>")
-        fenster.ergebnis.append(
-            f"<p style='font-family:courier'>{formulierungProzent}</p>")
+        # Calculate simplified fractions for cost distribution
+        kostenKlaegerNenner = int(streitwert * 100 / ggt(int(unterliegen * 100), int(streitwert * 100)))
+        kostenKlaegerZaehler = int(unterliegen * 100 / ggt(int(unterliegen * 100), int(streitwert * 100)))
+        kostenBeklagterZaehler = int(erfolg * 100 / ggt(int(erfolg * 100), int(streitwert * 100)))
+        kostenBeklagterNenner = int(streitwert * 100 / ggt(int(erfolg * 100), int(streitwert * 100)))
+
+        # Generate text for cost distribution in fraction and percentage format
+        formulierungBruch = f"Die Kosten des Rechtsstreits trägt die klagende Partei zu {kostenKlaegerZaehler}/{kostenKlaegerNenner} und die beklagte Partei zu {kostenBeklagterZaehler}/{kostenBeklagterNenner}."
+        formulierungProzent = f"Die Kosten des Rechtsstreits trägt die klagende Partei zu {locale.format_string('%.2f', kostenKlaeger).rstrip('00').rstrip(',')}% und die beklagte Partei zu {locale.format_string('%.2f', kostenBeklagter).rstrip('00').rstrip(',')}%."
+
+    # Display the results in the QTextBrowser widget
+    fenster.ergebnis.append("<h1>Einfache Streitwertberechnung</h1>")
+    fenster.ergebnis.append(f"<p><i>Die klagende Partei hat <b>{locale.currency(streitwert)}</b> beantragt, ihr wurden <b>{locale.currency(erfolg)}</b> zugesprochen - sie unterliegt also in Höhe von <b>{locale.currency(unterliegen)}</b>. Das entspricht <b>{locale.format_string('%.2f', kostenKlaeger).rstrip('00').rstrip(',')}%</b>.</i></p><br/><br/>")
+    fenster.ergebnis.append(f"<p style='font-family:courier'>{formulierungBruch}</p>")
+    fenster.ergebnis.append("<br/><br/><p style=\"color:silver\">- oder (alternativer Tenor) -</p><br/><br/>")
+    fenster.ergebnis.append(f"<p style='font-family:courier'>{formulierungProzent}</p>")
     fenster.ergebnis.append("<hr/><br/><br/>")
 
     fenster.copyFraction.setEnabled(True)
     fenster.copyPercent.setEnabled(True)
 
-    # Fügt die Eingabe für den Antrag in die Archivliste des Eingabefeldes ein (falls man denselben Betrag noch einmal benötigt)
+    # Add current input values to the ComboBox history
     fenster.antrag.addItem(fenster.antrag.currentText())
-    # Fügt die Eingabe für den Erfolg in die Archivliste  des Eingabefeldes ein (falls man denselben Betrag noch einmal benötigt)
     fenster.erfolg.addItem(fenster.erfolg.currentText())
-    # Löscht den bisherigen Text im Eingabefeld für den Antrag
     fenster.antrag.setCurrentText("")
-    # Löscht den bisherigen Text im Eingabefeld für den Erfolg
     fenster.erfolg.setCurrentText("")
-    # Bewirkt, dass das Eingabefeld für den Antrag wieder aktiv wird (d.h., dass Sie dort als nächstes Text eingeben sollen)
     fenster.antrag.setFocus()
 
 def prozentKopieren():
